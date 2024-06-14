@@ -2,27 +2,29 @@ class VotersController < ApplicationController
    before_action :authorize_request, except:[:import_file]
     load_and_authorize_resource
    skip_load_and_authorize_resource :only => :import_file
-  # def index
-  #   voters= Voter.all
-  #    # @Voter = Voter.search(params[:search])
+  def index
+    voters= Voter.all
+     # @Voter = Voter.search(params[:search])
      
-  #   if params[:constituency].present?
-  #     voters = voters.where(constituency: params[:constituency])
-  #    end
+    if params[:constituency].present?
+      voters = voters.where(constituency: params[:constituency])
+     end
         
-  #     if params[:booth_name].present? 
-  #   voters = voters.where(booth_name: params[:booth_name])
-  # end
+      if params[:booth_name].present? 
+    voters = voters.where(booth_name: params[:booth_name])
+  end
        
-  #   voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
-  #   total_count = voters.count,
-  #   per_page = 5,
-  #   ratio = (voters.count.to_f/per_page).ceil
-  #  render json: {
-  #   voters: voters,
-  #   total_pages:ratio
-  # }
-  # end
+    voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
+    total_count = voters.count,
+    per_page = 5,
+    ratio = (voters.count.to_f/per_page).ceil
+   render json: {
+    voters: voters,
+    total_pages:ratio
+  }
+  end
+
+
   # def index 
     
   #   query = params[:voter_name]
@@ -34,18 +36,34 @@ class VotersController < ApplicationController
   # end
   # end
 
-  def index
-    booth_name = params[:booth_name]
-    voter_name = params[:voter_name]
+  def search_by_name
+  booth_name = params[:booth_name]
+  voter_name = params[:voter_name]
 
-    if booth_name && voter_name
-      @voters = Voter.search_published(booth_name, voter_name)
-      binding.pry
-      render json: @voters
-    else
-      render json: { error: "Both booth_name and voter_name parameters are required" }, status: :unprocessable_entity
+  if booth_name.present? && voter_name.present?
+    @voters = Voter.search_published(booth_name, voter_name)
+    filtered_voters = @voters.records.map do |voter|
+      {
+        id: voter.id,
+        voter_name: voter.voter_name,
+        age: voter.age,
+        gender: voter.gender,
+        house_number: voter.house_number,
+        booth_name: voter.booth_name,
+        casted: voter.casted,
+        figured_by: voter.figured_by,
+        mobile_number: voter.mobile_number
+      }
     end
+    # render json: @voters.records.map {|pro| VoterSerializer.new(pro) }, status: :ok
+      # render json: @voters.records.map { |voter| VoterSerializer.new(voter) }, status: :ok
+      # render json: @voters.records, each_serializer: VoterSerializer, status: :ok
+    render json: filtered_voters
+  else
+    render json: { error: "Both booth_name and voter_name parameters are required" }, status: :unprocessable_entity
   end
+end
+
 
 
 

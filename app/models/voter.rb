@@ -88,26 +88,60 @@ class Voter < ApplicationRecord
     end
   end
 
-  def self.search_published(booth_name, voter_name)
+  # def self.search_published(booth_name, voter_name)
   
-    self.search({
-      query: {
-        bool: {
-          filter: [
-            {
-             match_phrase: { booth_name: booth_name }
+  #   self.search({
+  #     query: {
+  #       bool: {
+  #         filter: [
+  #           {
+  #            match_phrase: { booth_name: booth_name }
+  #             # wildcard: { booth_name: "*#{booth_name}*" }
+  #              # match: { booth_name: { query: booth_name, fuzziness: "AUTO" } }
+  #           }
+  #         ],
+  #         must: [
+  #           {
+  #             match_phrase: { voter_name: voter_name }
+  #              # wildcard: { voter_name: "*#{voter_name}*" }
+  #               # match: { voter_name: { query: voter_name, fuzziness: "AUTO" } }
+
+  #           }
+  #         ]
+  #       }
+  #     }
+  #   })
+  # end
+def self.search_published(booth_name, voter_name)
+  self.search({
+    query: {
+      bool: {
+        must: [
+          {
+            bool: {
+              should: [
+                { wildcard: { booth_name: "*#{booth_name}*" } },
+                { prefix: { booth_name: booth_name } },
+                { match: { booth_name: { query: booth_name, fuzziness: "AUTO" } } }
+              ]
             }
-          ],
-          must: [
-            {
-              match_phrase: { voter_name: voter_name }
+          },
+          {
+            bool: {
+              should: [
+                { wildcard: { voter_name: "*#{voter_name}*" } },
+                { prefix: { voter_name: voter_name } },
+                { match: { voter_name: { query: voter_name, fuzziness: "AUTO" } } }
+              ]
             }
-          ]
-        }
+          }
+        ]
       }
-    })
-  end
+    }
+  })
 end
+end
+
 
 
 

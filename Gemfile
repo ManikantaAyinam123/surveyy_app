@@ -62,3 +62,5 @@ end
 gem "elasticsearch-model", "~> 8.0"
 
 gem "elasticsearch-rails", "~> 8.0"
+
+gem "active_model_serializers", require: true
