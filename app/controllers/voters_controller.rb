@@ -3,25 +3,21 @@ class VotersController < ApplicationController
     load_and_authorize_resource
    skip_load_and_authorize_resource :only => :import_file
   def index
-    voters= Voter.all
-   
-     
-    if params[:constituency].present?
-      voters = voters.where(constituency: params[:constituency])
-     end
-        
-      if params[:booth_name].present? 
-    voters = voters.where(booth_name: params[:booth_name])
-  end
-       
-    voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
-    total_count = voters.count,
-    per_page = 5,
-    ratio = (voters.count.to_f/per_page).ceil
-   render json: {
-    voters: voters,
-    total_pages:ratio
-  }
+        voters= Voter.all
+         if params[:constituency].present?
+          voters = voters.where(constituency: params[:constituency])
+         end
+         if params[:booth_name].present? 
+           voters = voters.where(booth_name: params[:booth_name])
+         end
+        voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
+        total_count = voters.count,
+        per_page = 5,
+        ratio = (voters.count.to_f/per_page).ceil
+       render json: {
+        voters: voters,
+        total_pages:ratio
+      }
   end
 
   def show
@@ -33,38 +29,31 @@ class VotersController < ApplicationController
 
 def search_by_name
   voter_name = params[:voter_name]
-  
    if voter_name.blank?
     render json: { error: "Please provide a 'voter_name' parameter." }, status: :bad_request
     return
-  end
-  
-  voters = Voter.all
-
-  if params[:constituency].present?
+   end
+   voters = Voter.all
+   if params[:constituency].present?
     voters = voters.where(constituency: params[:constituency])
-  end
-
-  if params[:booth_name].present? 
+   end
+   if params[:booth_name].present? 
     voters = voters.where(booth_name: params[:booth_name])
-  end
+   end
 
-  voters = voters.where("voter_name ILIKE ?", "%#{voter_name}%")
-  render json: voters
-end
-
-
+    voters = voters.where("voter_name ILIKE ?", "%#{voter_name}%")
+    render json: voters
+ end
 
   def search_by_constituency
-  constituency = params[:constituency].downcase
-  constituencies = Voter.where("Lower(constituency) LIKE ?", "%#{constituency}%").distinct.pluck(:constituency)
-  render json: constituencies
-end
+    constituency = params[:constituency].downcase
+    constituencies = Voter.where("Lower(constituency) LIKE ?", "%#{constituency}%").distinct.pluck(:constituency)
+    render json: constituencies
+  end
 
   def search_by_booth_name
-
     booth_name = params[:booth_name].downcase
-   boothNames =Voter.where("Lower(booth_name) LIKE ?","%#{booth_name}%").distinct.pluck(:booth_name)
+    boothNames =Voter.where("Lower(booth_name) LIKE ?","%#{booth_name}%").distinct.pluck(:booth_name)
     render json: boothNames
     # binding.pry
    end 
@@ -113,41 +102,100 @@ end
 
 
 
-def import_file
-    file = params[:dump][:file]
-    if file.present? && file.content_type == "application/vnd.ms-excel"
-      xls = Roo::Excel.new(file.path)
-      xls.default_sheet = xls.sheets.first
+# def import_file
+#     file = params[:dump][:file]
+#     if file.present? && file.content_type == "application/vnd.ms-excel"
+#       xls = Roo::Excel.new(file.path)
+#       xls.default_sheet = xls.sheets.first
 
-      # Start iteration from the second row (index 2) to skip header
-      (2..xls.last_row).each do |row_index|
-        row = xls.row(row_index)
+#       # Start iteration from the second row (index 2) to skip header
+#       (2..xls.last_row).each do |row_index|
+#         row = xls.row(row_index)
         
+#         Voter.create(
+#           voter_name: row[0],
+#           age: row[1],
+#           gender: row[2],
+#           house_number: row[3],
+#           mobile_number: row[4],
+#           booth_name: row[5],
+#           casted: row[6].present? ? ActiveModel::Type::Boolean.new.cast(row[6]) : false,  
+#           figured_by: row[7],
+          
+#         )
+#       end
+
+#       render json: { message: "File uploaded successfully" }, status: :ok
+#     else
+#       render json: { error: "Please upload a valid Excel file" }, status: :unprocessable_entity
+#     end
+#   rescue StandardError => e
+#     render json: { error: "File import failed! #{e.message}" }, status: :unprocessable_entity
+#   end
+
+#    private
+
+#   def voter_params
+#     params.require(:voter).permit(:voter_name, :age, :gender, :house_number, :mobile_number, :booth_name, :casted, :figured_by)
+#   end
+#  end
+
+
+def import_file
+  file = params[:dump][:file]
+  if file.present? && file.content_type == "application/vnd.ms-excel"
+    xls = Roo::Excel.new(file.path)
+    xls.default_sheet = xls.sheets.first
+
+    successful_upload_count = 0
+    rejected_records =0
+
+   
+    (2..xls.last_row).each do |row_index|
+      row = xls.row(row_index)
+      
+      voter_name = row[0]
+      age = row[1]
+      gender = row[2]
+      house_number = row[3]
+      mobile_number = row[4]
+      booth_name = row[5]
+      casted = row[6].present? ? ActiveModel::Type::Boolean.new.cast(row[6]) : false
+      figured_by = row[7]
+      
+     
+      existing_voter = Voter.find_by(voter_name: voter_name, booth_name: booth_name)
+      
+      if existing_voter.nil?
         Voter.create(
-          voter_name: row[0],
-          age: row[1],
-          gender: row[2],
-          house_number: row[3],
-          mobile_number: row[4],
-          booth_name: row[5],
-          casted: row[6].present? ? ActiveModel::Type::Boolean.new.cast(row[6]) : false,  
-          figured_by: row[7],
+          voter_name: voter_name,
+          age: age,
+          gender: gender,
+          house_number: house_number,
+          mobile_number: mobile_number,
+          booth_name: booth_name,
+          casted: casted,
+          figured_by: figured_by
           
         )
+            successful_upload_count +=1
+       else
+            rejected_records +=1
+       end
       end
 
-      render json: { message: "File uploaded successfully" }, status: :ok
-    else
-      render json: { error: "Please upload a valid Excel file" }, status: :unprocessable_entity
+        render json: { message: "File uploaded successfully",Total_records_uploaded_sucessfully:successful_upload_count,Rejected_record:rejected_records }, status: :ok
+      else
+        render json: { error: "Please upload a valid Excel file" }, status: :unprocessable_entity
+      end
+    rescue StandardError => e
+      render json: { error: "File import failed! #{e.message}" }, status: :unprocessable_entity
     end
-  rescue StandardError => e
-    render json: { error: "File import failed! #{e.message}" }, status: :unprocessable_entity
-  end
 
-   private
+    private
 
-  def voter_params
-    params.require(:voter).permit(:voter_name, :age, :gender, :house_number, :mobile_number, :booth_name, :casted, :figured_by)
-  end
- end
+    def voter_params
+      params.require(:voter).permit(:voter_name, :age, :gender, :house_number, :mobile_number, :booth_name, :casted, :figured_by)
+    end
+end
 
