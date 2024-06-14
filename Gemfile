@@ -58,3 +58,7 @@ group :development do
   # gem "spring"
 end
 
+
+gem "elasticsearch-model", "~> 8.0"
+
+gem "elasticsearch-rails", "~> 8.0"

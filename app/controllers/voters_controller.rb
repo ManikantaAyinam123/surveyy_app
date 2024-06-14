@@ -2,27 +2,52 @@ class VotersController < ApplicationController
    before_action :authorize_request, except:[:import_file]
     load_and_authorize_resource
    skip_load_and_authorize_resource :only => :import_file
-  def index
-    voters= Voter.all
-   
+  # def index
+  #   voters= Voter.all
+  #    # @Voter = Voter.search(params[:search])
      
-    if params[:constituency].present?
-      voters = voters.where(constituency: params[:constituency])
-     end
+  #   if params[:constituency].present?
+  #     voters = voters.where(constituency: params[:constituency])
+  #    end
         
-      if params[:booth_name].present? 
-    voters = voters.where(booth_name: params[:booth_name])
-  end
+  #     if params[:booth_name].present? 
+  #   voters = voters.where(booth_name: params[:booth_name])
+  # end
        
-    voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
-    total_count = voters.count,
-    per_page = 5,
-    ratio = (voters.count.to_f/per_page).ceil
-   render json: {
-    voters: voters,
-    total_pages:ratio
-  }
+  #   voters = voters.order(id: :asc).paginate(page: params[:page], per_page:5)
+  #   total_count = voters.count,
+  #   per_page = 5,
+  #   ratio = (voters.count.to_f/per_page).ceil
+  #  render json: {
+  #   voters: voters,
+  #   total_pages:ratio
+  # }
+  # end
+  # def index 
+    
+  #   query = params[:voter_name]
+
+  # if query
+  #   @voters = Voter.search_published(query)
+    
+  #   render json: @voters
+  # end
+  # end
+
+  def index
+    booth_name = params[:booth_name]
+    voter_name = params[:voter_name]
+
+    if booth_name && voter_name
+      @voters = Voter.search_published(booth_name, voter_name)
+      binding.pry
+      render json: @voters
+    else
+      render json: { error: "Both booth_name and voter_name parameters are required" }, status: :unprocessable_entity
+    end
   end
+
+
 
   def show
     voter = Voter.find(params[:id])
@@ -31,27 +56,27 @@ class VotersController < ApplicationController
     render json: { error: "Voter not found" }, status: :not_found
   end
 
-def search_by_name
-  voter_name = params[:voter_name]
+# def search_by_name
+#   voter_name = params[:voter_name]
   
-   if voter_name.blank?
-    render json: { error: "Please provide a 'voter_name' parameter." }, status: :bad_request
-    return
-  end
+#    if voter_name.blank?
+#     render json: { error: "Please provide a 'voter_name' parameter." }, status: :bad_request
+#     return
+#   end
   
-  voters = Voter.all
+#   voters = Voter.all
 
-  if params[:constituency].present?
-    voters = voters.where(constituency: params[:constituency])
-  end
+#   if params[:constituency].present?
+#     voters = voters.where(constituency: params[:constituency])
+#   end
 
-  if params[:booth_name].present? 
-    voters = voters.where(booth_name: params[:booth_name])
-  end
+#   if params[:booth_name].present? 
+#     voters = voters.where(booth_name: params[:booth_name])
+#   end
 
-  voters = voters.where("voter_name ILIKE ?", "%#{voter_name}%")
-  render json: voters
-end
+#   voters = voters.where("voter_name ILIKE ?", "%#{voter_name}%")
+#   render json: voters
+# end
 
 
 
