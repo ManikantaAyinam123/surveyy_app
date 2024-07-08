@@ -20,6 +20,7 @@ gem 'roo-xls'
 gem 'rack-cors'
 gem 'will_paginate'
 gem 'cancancan'
+ gem 'webpacker'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
