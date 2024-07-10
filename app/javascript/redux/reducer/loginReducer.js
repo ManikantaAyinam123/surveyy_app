@@ -13,7 +13,7 @@ const initialLoginState = {
 };
 
 const loginReducer = (state = initialLoginState, action) => {
-  console.log("in reducer",action)
+  
   switch (action.type) {
     case LOGIN_REQUEST:
       return { ...state, loading: true, error: null };

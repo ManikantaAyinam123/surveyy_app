@@ -21,6 +21,8 @@ gem 'rack-cors'
 gem 'will_paginate'
 gem 'cancancan'
  gem 'webpacker'
+ gem 'foreman'
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 

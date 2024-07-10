@@ -8,10 +8,11 @@ Rails.application.routes.draw do
     ActiveAdmin.routes(self)
  
     resources :users
-    post '/auth/login', to: 'authentication#login'
+  
     post '/admin/uploads/import_file', to: 'uploads#import_file', as: 'import_file_admin_uploads'
     post '/admin/voters/import_file', to: 'voters#import_file', as: 'import_file_admin_voters'
-namespace :api do
+   namespace :api do
+    post '/auth/login', to: 'authentication#login'
     resources :voters do
       collection do
         get :search_by_name

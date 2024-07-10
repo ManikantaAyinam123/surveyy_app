@@ -129,7 +129,8 @@ const VolunteerData = () => {
         <>
           {searchName.trim() !== '' ? (
             filteredVoters?.length === 0 ? (
-               <img src="https://t4.ftcdn.net/jpg/05/86/21/03/360_F_586210337_WOGOw0l7raEB8F61Muc4hWbvVcyQdk9Z.jpg" alt="No data available"   style={{ maxWidth: '100%', height: 'auto' }}  />
+               <img src="https://t4.ftcdn.net/jpg/05/86/21/03/360_F_586210337_WOGOw0l7raEB8F61Muc4hWbvVcyQdk9Z.jpg" alt="No data available"  
+                style={{ marginTop: 16, display: 'block', marginLeft: 'auto', marginRight: 'auto' }} />
          
             ) : (
               <VoterTable voters={filteredVoters} />

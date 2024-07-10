@@ -40,7 +40,7 @@ export const fetchAllVotersData = async (page,boothName) => {
       resolve(data);  
     } catch (error) {
       console.error("Error in allvoters API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error);  
     }
   });
 };
@@ -54,7 +54,7 @@ export const filterByCastedStatusData = async (casted, page, boothName) => {
       resolve(data);  
     } catch (error) {
       console.error("Error in allvoters API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error);  
     }
   });
 };
@@ -69,7 +69,7 @@ export const searchByNameData = async (name,boothName) => {
       resolve(data);  
     } catch (error) {
       console.error("Error in search name API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error); 
     }
   });
 };
@@ -84,7 +84,7 @@ export const updateVoter = async (id, updatedFields) => {
       resolve(data);  
     } catch (error) {
       console.error("Error in search name API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error);  
     }
   });
 };
@@ -191,7 +191,7 @@ export const fetchBoothNamesData = async (name) => {
       resolve(data);  
     } catch (error) {
       console.error("Error in boothName API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error);  
     }
   });
 };
@@ -218,10 +218,10 @@ export const loginData = async (formData) => {
     try {
       const result = await api.post(`${login}`, formData);
       console.log("Login API response:", result);
-      resolve(result);  // Ensure resolve is called with the result
+      resolve(result);
     } catch (error) {
       console.error("Error in login API call:", error);
-      reject(error);  // Ensure reject is called with the error
+      reject(error); 
     }
   });
 };
